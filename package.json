@@ -5,7 +5,8 @@
   "type": "module",
   "main": "app.js",
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "start-dev": "NODE_ENV=development nodemon app.js",
+    "start-prod": "NODE_ENV=production nodemon app.js"
   },
   "author": "",
   "license": "ISC",
@@ -16,6 +17,7 @@
     "joi": "^17.9.2",
     "jsonwebtoken": "^9.0.0",
     "mongoose": "^7.1.2",
+    "morgan": "^1.10.0",
     "nodemon": "^2.0.22"
   }
 }

@@ -21,3 +21,9 @@ export class UnAuthorizedError extends Error {
     this.errorType = "UnAuthorizedError";
   }
 }
+
+export const sendError = (res, status, error) => {
+  res.status(status).json({
+    message: error
+  })
+}

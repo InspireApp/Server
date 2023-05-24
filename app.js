@@ -7,7 +7,7 @@ import { config } from "./src/config/index.js";
 
 dotenv.config();
 const app = express();
-const port = config.port;
+const port = config.port || 3001;
 
 // global middle-wares
 app.use(express.json())

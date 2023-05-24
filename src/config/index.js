@@ -1,22 +1,25 @@
+import dotenv from "dotenv"
+dotenv.config()
 import { development } from "./development.js";
-import * as dotenv from 'dotenv';
 import { production } from "./production.js";
-dotenv.config();
 
 const environment = process.env.NODE_ENV;
-console.log(environment);
+console.log(environment)
 
-let config;
-if (!environment) throw new Error('No environment specified')
+let config
+if(!environment) throw new Error("No environment setup on the SERVER!!!")
 
-console.log(`server is running in the ${environment} environment`);
+console.log(`Server setup to ${environment}!!!`)
 
-if (environment === "development") {
-  config = { ...development };
+if(environment.trim() === "production") {
+  //console.log(production)
+  config = {...production}
+}
+if(environment.trim() === "development") {
+  config = {...development}
 }
 
-if (environment === "production") {
-  config = { ...production };
-}
+export { config }
 
-export { config };
+//dotenv.config({path:_dirname+*/.env});
+//dotenv.config({path:'./env'});

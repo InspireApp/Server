@@ -1,12 +1,12 @@
 {
-  "name": "inspireServer",
+  "name": "inspireserver",
   "description": "",
   "version": "1.0.0",
   "type": "module",
   "main": "app.js",
   "scripts": {
-    "start-dev": "NODE_ENV=development nodemon app.js",
-    "start-prod": "NODE_ENV=production nodemon app.js"
+    "start-dev": "set NODE_ENV=development && nodemon app.js",
+    "start-prod": "set NODE_ENV=production && nodemon app.js"
   },
   "author": "",
   "license": "ISC",

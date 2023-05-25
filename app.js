@@ -4,7 +4,7 @@ import mongoose from 'mongoose';
 import morgan from "morgan";
 import { globalErrorHandler } from "./src/utils/globalError.js";
 import { config } from "./src/config/index.js";
-import { userRouter } from "./src/routes/UserRoutes.js";
+import { userAuthRouter } from "./src/routes/authRoutes.js";
 
 dotenv.config();
 const app = express();
@@ -15,7 +15,7 @@ app.use(express.json())
 app.use(morgan('tiny'))
 
 // Mounting router
-app.use('/api/v1/user', userRouter);
+app.use('/api/v1/auth', userAuthRouter);
 
 // Database connection
 mongoose.connect(config.mongodb_connection_url)

@@ -82,11 +82,27 @@ export const emailLogin = async (req, res) => {
     const passwordExist = await bcrypt.compare(password, userExists.password);
     if (!passwordExist) return sendError(res, 400, 'password incorrect or does not exist.')
 
+    // generate token
+    const token = generateToken(userExists);
+
+    let oldTokens = userExists.tokens || [];
+    if (oldTokens.length) {
+      const oldTokens = oldTokens.filter(t => {
+        const timeDiff = (Date.now() - parseInt(t.signedAt)) / 1000
+        if (timeDiff < 86400) {
+          console.log(t);
+          return t;
+        }
+      })
+    }
+
+    await userModel.findByIdAndUpdate(userExists._id, { tokens: [...oldTokens, { token, signedAt: Date.now().toString() }] })
+
     // when everything is checked successfully
-    res.status(200).header('auth_token', generateToken(userExists)).json({
+    res.status(200).header('auth_token', token).json({
       status: 'Success',
       message: 'User logged in successfully',
-      access_token: generateToken(userExists)
+      access_token: token
     })
 
   } catch (error) {
@@ -252,6 +268,30 @@ export const resetPassword = async (req, res) => {
       status: 'Failed',
       message: error.message
     })
+  }
+
+}
+
+export const logOut = async (req, res) => {
+
+  if (req.headers.auth_token) {
+    if (req.headers && req.headers.auth_token) {
+      const token = req.headers.auth_token
+      if (!token) {
+        return sendError(res, 401, 'Authorization failed!')
+      }
+      const tokens = req.user.tokens;
+      const newTokens = tokens.filter(t => t.token !== token)
+
+      await userModel.findByIdAndUpdate(req.user._id, { tokens: newTokens })
+      res.status(200).json({ message: 'signed out successfully' })
+
+    }
+  } else {
+    if (req.user) {
+      req.logout();
+      res.status(200).json({ message: 'signed out successfully' })
+    }
   }
 
 }

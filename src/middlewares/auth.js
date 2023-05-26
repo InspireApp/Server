@@ -5,20 +5,42 @@ import { verifyToken } from "../utils/jwt.js";
 import { userModel } from "../models/userModel.js";
 import { resetTokenModel } from "../models/resetToken.js";
 
-export const userAuth = (req, res, next) => {
+export const userAuthJwt = async (req, res, next) => {
   try {
     // check if there is token in the request header
-    const token = req.header('auth_token');
-    if (!token) return res.status(401).json({ message: 'Access denied' });
+    if (req.header('auth_token')) {
+      const token = req.header('auth_token');
+      if (!token) return res.status(401).json({ message: 'Access denied, you need a token' });
 
-    // if there is a token in the request header
-    const verified = verifyToken(token);
-    req.user = verified;
-    next();
+      // if there is a token in the request header
+      const verified = verifyToken(token);
+      console.log(verified);
+      const user = await userModel.findById(verified._id)
+      console.log(user);
+      if (!user) return sendError(res, 401, 'unauthorized access');
+
+      req.user = user;
+      console.log(req.user);
+      next();
+
+    } else { //using sessions
+      if (!req.user) {
+        return sendError(res, 400, "Session invalid, please try login again!")    //res.redirect('/api/v1/auth/email-login')
+      } else {
+        next();
+      }
+    }
+
+
 
   } catch (error) {
     return res.status(400).json({ message: 'Invalid Token' });
   }
+
+}
+
+export const socialAuthCheck = (req, res, next) => {
+
 
 }
 

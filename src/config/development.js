@@ -9,5 +9,8 @@ export const development = {
   jwt_web_token: process.env.DEV_JWT_SECRET,
   mail_trap_username: process.env.DEV_MAIL_TRAP_USERNAME,
   mail_trap_password: process.env.DEV_MAIL_TRAP_PASSWORD,
-  bcrypt_forgot_password_salt_round: process.env.DEV_FORGOT_PASSWORD_SALT_ROUND
+  bcrypt_forgot_password_salt_round: process.env.DEV_FORGOT_PASSWORD_SALT_ROUND,
+  google_strategy_client_id: process.env.DEV_GOOGLE_STRATEGY_CLIENT_ID,
+  google_strategy_client_secret: process.env.DEV_GOOGLE_STRATEGY_CLIENT_SECRET,
+  cookie_session_key: process.env.DEV_COOKIE_SESSION_KEY
 }

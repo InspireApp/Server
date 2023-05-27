@@ -41,7 +41,7 @@ export const createAccount = async (req, res) => {
 
     // send OTP mail
     mailTransport().sendMail({
-      from: "emailverification@gmail.com",
+      from: "waleade602@gmail.com",
       to: userCreated.email,
       subject: "verify your email account",
       html: generateEmail(OTP, userCreated.fullName)

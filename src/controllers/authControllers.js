@@ -14,14 +14,24 @@ export const createAccount = async (req, res) => {
   try {
     // Validate user registration data (joi validation)
     const { error, value } = userDataValidation(req.body);
-    if (error) return res.status(400).send(error.details[0].message)
+    if (error) {
+      return res.status(400).json({
+        status: "Failed",
+        message: error.details[0].message
+      });
+    }
 
     // destructure the data in the req.body
     const { fullName, email, phoneNumber, password } = req.body;
 
     // check if the email already exists
     const emailExists = await userModel.findOne({ email });
-    if (emailExists) return res.status(400).json({ message: 'Email already exists, please login instead' });
+    if (emailExists) {
+      return res.status(400).json({
+        status: "Failed",
+        message: 'Email already exists, please login instead'
+      });
+    }
 
     // hash password before saving to database
     const saltPass = +config.bcrypt_password_salt_round

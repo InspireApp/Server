@@ -98,7 +98,7 @@ export const emailLogin = async (req, res) => {
 
     let oldTokens = userExists.tokens || [];
     if (oldTokens.length) {
-      const oldTokens = oldTokens.filter(t => {
+      oldTokens = oldTokens.filter(t => {
         const timeDiff = (Date.now() - parseInt(t.signedAt)) / 1000
         if (timeDiff < 86400) {
           console.log(t);

@@ -14,14 +14,24 @@ export const createAccount = async (req, res) => {
   try {
     // Validate user registration data (joi validation)
     const { error, value } = userDataValidation(req.body);
-    if (error) return res.status(400).send(error.details[0].message)
+    if (error) {
+      return res.status(400).json({
+        status: "Failed",
+        message: error.details[0].message
+      });
+    }
 
     // destructure the data in the req.body
     const { fullName, email, phoneNumber, password } = req.body;
 
     // check if the email already exists
     const emailExists = await userModel.findOne({ email });
-    if (emailExists) return res.status(400).json({ message: 'Email already exists, please login instead' });
+    if (emailExists) {
+      return res.status(400).json({
+        status: "Failed",
+        message: 'Email already exists, please login instead'
+      });
+    }
 
     // hash password before saving to database
     const saltPass = +config.bcrypt_password_salt_round
@@ -37,6 +47,7 @@ export const createAccount = async (req, res) => {
     const saltOTP = +config.bcrypt_OTP_salt_round
     const hashedOTP = await bcrypt.hashSync(OTP, saltOTP);
 
+    // save hashed token generated into the verification-tokens collections, token is valid for 1 hour
     const tokenVerification = await tokenVerificationModel.create({ owner: userCreated._id, token: hashedOTP })
 
     // send OTP mail
@@ -87,7 +98,7 @@ export const emailLogin = async (req, res) => {
 
     let oldTokens = userExists.tokens || [];
     if (oldTokens.length) {
-      const oldTokens = oldTokens.filter(t => {
+      oldTokens = oldTokens.filter(t => {
         const timeDiff = (Date.now() - parseInt(t.signedAt)) / 1000
         if (timeDiff < 86400) {
           console.log(t);
@@ -96,7 +107,7 @@ export const emailLogin = async (req, res) => {
       })
     }
 
-    await userModel.findByIdAndUpdate(userExists._id, { tokens: [...oldTokens, { token, signedAt: Date.now().toString() }] })
+    await userModel.findByIdAndUpdate(userExists._id, { tokens: [...oldTokens, { token, signedAt: Date.now().toString() }] }, { runValidators: true })
 
     // when everything is checked successfully
     res.status(200).header('auth_token', token).json({
@@ -117,27 +128,29 @@ export const emailLogin = async (req, res) => {
 export const verifyEmail = async (req, res) => {
 
   try {
-    const { userId, otp } = req.body;
+    // verify by email and OTP
+    const { email, otp } = req.body;
 
-    if (!userId || !otp) return sendError(res, 400, "Invalid request, missing required parameters");
+    if (!email || !otp) return sendError(res, 400, "Invalid request, enter email");
 
-    // verifying valid user-id using isValidObjectId from mongoose
-    if (!isValidObjectId(userId)) return sendError(res, 400, "Invalid user id!")
+    // // verifying valid user-id using isValidObjectId from mongoose
+    // if (!isValidObjectId(userId)) return sendError(res, 400, "Invalid user id!")
 
-    // find user by id
-    const userFound = await userModel.findById(userId)
-    if (!userFound) return sendError(res, 400, "Sorry not found!")
+    // find user by email
+    const userFound = await userModel.findOne({ email })
+    if (!userFound) return sendError(res, 400, "User not found!, Please create an account")
 
     // check if user is verified
-    if (userFound.verified) return sendError(res, 400, "This account is already verified");
+    if (userFound.verified) return sendError(res, 400, "This account is already verified, please login!");
+
+    // check if there is token in the token verification model, else generate token and send token to email.
 
     // retrieve token from token verification collections in the database by userFound._id
     const token = await tokenVerificationModel.findOne({ owner: userFound._id })
-    console.log(token);
-    if (!token) return sendError(res, 400, "Sorry, user not found")
 
     // compare the token from req.body to token stored in the database
     const isMatched = await bcrypt.compare(otp, token.token)
+
     if (!isMatched) return sendError(res, 400, "Please provide a valid token!")
 
     // when everything seems to work fine, then set the verified property in the user collection database to true.
@@ -150,7 +163,7 @@ export const verifyEmail = async (req, res) => {
     await tokenVerificationModel.findByIdAndDelete(token._id)
 
 
-    // send OTP mail
+    // send verification mail
     mailTransport().sendMail({
       from: "emailverification@gmail.com",
       to: userFound.email,
@@ -171,6 +184,49 @@ export const verifyEmail = async (req, res) => {
     })
   }
 
+}
+
+export const laterAccountVerify = async (req, res) => {
+  try {
+    const { email } = req.body;
+    if (!email) return sendError(res, 400, "Invalid request, enter email");
+
+    const userFound = await userModel.findOne({ email })
+    if (!userFound) return sendError(res, 400, "User not found!, Please create an account")
+
+    // check if user is verified
+    if (userFound.verified) return sendError(res, 400, "This account is already verified, please login!");
+
+    // generate an otp for user
+    const OTP = generateOTP();
+
+    // hash otp
+    const saltOTP = +config.bcrypt_OTP_salt_round
+    const hashedOTP = await bcrypt.hashSync(OTP, saltOTP);
+
+    // save hashed token generated into the verification-tokens collections, token is valid for 1 hour
+    await tokenVerificationModel.create({ owner: userFound._id, token: hashedOTP })
+
+    // send OTP mail
+    mailTransport().sendMail({
+      from: "emailverification@gmail.com",
+      to: userFound.email,
+      subject: "verify your email account",
+      html: generateEmail(OTP, userFound.fullName)
+    })
+
+    // response
+    res.status(200).json({
+      status: "success",
+      message: "OTP sent to your email",
+    })
+
+  } catch (error) {
+    res.status(400).json({
+      status: 'Failed',
+      message: error.message
+    })
+  }
 }
 
 export const forgotPassword = async (req, res) => {

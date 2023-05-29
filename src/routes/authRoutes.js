@@ -1,5 +1,5 @@
 import express from 'express';
-import { createAccount, emailLogin, forgotPassword, logOut, resetPassword, verifyEmail } from '../controllers/authControllers.js';
+import { createAccount, emailLogin, forgotPassword, laterAccountVerify, logOut, resetPassword, verifyEmail } from '../controllers/authControllers.js';
 import { resetPasswordValidation, socialAuthCheck, userAuthJwt } from '../middlewares/auth.js';
 import passport from 'passport';
 
@@ -8,6 +8,7 @@ const router = express.Router();
 // user registration or create account
 router.post('/create-account', createAccount);
 router.post('/verify-email', verifyEmail);
+router.post('/verify-account', laterAccountVerify);
 router.post('/email-login', emailLogin);
 router.post('/forgot-password', forgotPassword);
 router.post('/reset-password', resetPasswordValidation, resetPassword);

@@ -8,6 +8,7 @@ import { userAuthRouter } from "./src/routes/authRoutes.js";
 import { passportSetup } from "./src/socialLogin/passport.js";
 import cookieSession from "cookie-session";
 import passport from "passport";
+import { userProfileRouter } from "./src/routes/profileRoutes.js";
 import { jobRouter } from "./src/routes/jobRoutes.js";
 // import { homePageRouter } from "./src/routes/homePageRoutes.js";
 
@@ -38,7 +39,6 @@ app.use(passport.session())
 
 // Mounting router
 app.use('/api/v1/auth', userAuthRouter);
-app.use('/api/v1/', jobRouter);
 // app.use('/api/v1', homePageRouter);
 
 

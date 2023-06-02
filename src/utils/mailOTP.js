@@ -13,8 +13,9 @@ export const generateOTP = () => {
 
 export const mailTransport = () =>
   nodemailer.createTransport({
-    host: "sandbox.smtp.mailtrap.io",
-    port: 2525,
+    host: "smtp.gmail.com",
+    port: 465,
+    secure: true,
     auth: {
       user: config.mail_trap_username,
       pass: config.mail_trap_password
@@ -81,7 +82,7 @@ export const generatePasswordReset = (name, url) =>
     </div>
     <p style="font-size:1.1em">Hello, ${name}</p>
 
-    <p>It seems like you forgot your password.<br/> If this is true, click the link below to reset your password.<br/>
+    <p>It seems like you forgot your password. If this is true, click the link below to reset your password.<br/>
     <a href="${url}"><button>RESET PASSWORD</button></a> <br /> If you did not forget your password, please disregard this email.</p>
 
     <p style="font-size:0.9em;">Regards,<br />InspireApp</p>

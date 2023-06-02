@@ -14,13 +14,13 @@ export const userAuthJwt = async (req, res, next) => {
 
       // if there is a token in the request header
       const verified = verifyToken(token);
-      console.log(verified);
+      // console.log(verified);
       const user = await userModel.findById(verified._id)
-      console.log(user);
+      // console.log(user);
       if (!user) return sendError(res, 401, 'unauthorized access');
 
       req.user = user;
-      console.log(req.user);
+      // console.log(req.user);
       next();
 
     } else { //using sessions

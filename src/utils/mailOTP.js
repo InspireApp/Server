@@ -2,8 +2,8 @@ import { config } from "../config/index.js";
 import nodemailer from 'nodemailer';
 import crypto from 'crypto'; //to generate random token
 
-let verificationOTP = '';
 export const generateOTP = () => {
+  let verificationOTP = '';
   for (let i = 0; i <= 3; i++) {
     let randVal = Math.round(Math.random() * 9);
     verificationOTP = verificationOTP + randVal;

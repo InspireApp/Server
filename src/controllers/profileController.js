@@ -11,18 +11,18 @@ export const createProfile = async (req, res) => {
 
     // Validate req.body data???
 
-    const { profilePic, gender, bio, jobRole, education, jobExperience, mentorshipExperience } = req.body
+    const { firstName, lastName, profilePic, gender, bio, jobRole, jobRoleCategory, education, jobExperience, mentorshipExperience } = req.body
 
     // check if profile exists
     const existingProfile = await userProfileModel.findOne({ userProfile: userId });
     if (existingProfile) return sendError(res, 400, "User profile exists, thank you!");
 
     // create new user profile
-    const userProfiles = await userProfileModel.create({ userProfile: userId, email: userEmail, profilePic, gender, bio, jobRole, education, jobExperience, mentorshipExperience })
+    const userProfiles = await userProfileModel.create({ userProfile: userId, firstName, lastName, email: userEmail, profilePic, gender, bio, jobRole, jobRoleCategory, education, jobExperience, mentorshipExperience })
     if (!userProfiles) return sendError(res, 400, "Please create your profile");
 
     // populate the user collection with the user userProfile details
-    const updateUserProfile = await userProfileModel.findOne({ userProfile: userId }).populate({
+    const updatedUserProfile = await userProfileModel.findOne({ userProfile: userId }).populate({
       path: 'userProfile',
       select: '-password'
     });
@@ -34,7 +34,7 @@ export const createProfile = async (req, res) => {
     res.status(200).json({
       status: "success",
       message: "user profile created",
-      data: updateUserProfile
+      data: { updatedUserProfile }
     });
 
   } catch (error) {
@@ -48,13 +48,31 @@ export const createProfile = async (req, res) => {
 // this route handler is only for super user, who has access to pull up all user data, not for single users
 export const getAllProfile = async (req, res) => {
   try {
+    // filtering by user profile properties
+    const queryObj = { ...req.query };
+    const excludeFields = ['page', 'sort', 'limit', 'fields'];
+    excludeFields.forEach(el => delete queryObj[el]);
 
-    // collecting all users data using userProfileModel and populate with userinfo from the user's collection excluding the password
-    const allUserProfile = await userProfileModel.find()
-      .populate({
-        path: 'userProfile',
-        select: '-password'
-      });
+    // after all operations on queryObj, pass to userProfileModel
+    let query = userProfileModel.find(queryObj);
+
+    // populate the query response with userinfo from the user's collection excluding the password
+    query = query.populate({ path: 'userProfile', select: '-password' });
+
+    // pagination
+    if (req.query.page && req.query.limit) {
+      const page = req.query.page * 1 || 1;  //page 1 is default
+      const limit = req.query.limit * 1 || 10;
+      const skip = (page - 1) * limit
+
+      query = query.skip(skip).limit(limit);
+
+      const numOfProfiles = await userProfileModel.countDocuments();
+      if (skip >= numOfProfiles) return sendError(res, 400, "This page is not available!")
+    }
+
+    // finally, await query
+    const allUserProfile = await query;
 
     // if error and no profile, send error
     if (!allUserProfile) return sendError(res, 404, 'Users profile not found!');
@@ -63,7 +81,7 @@ export const getAllProfile = async (req, res) => {
     res.status(200).json({
       status: "success",
       message: "All user profile",
-      data: allUserProfile
+      data: { allUserProfile }
     });
 
   } catch (error) {
@@ -93,7 +111,7 @@ export const getOneProfile = async (req, res) => {
     res.status(200).json({
       status: "success",
       message: "user profile",
-      data: getOneProfile
+      data: { getOneProfile }
     });
 
   } catch (error) {
@@ -113,7 +131,9 @@ export const updateUserInfoAndProf = async (req, res) => {
     const profileId = req.params.userProfileId;
 
     // data to be updated from req.body
-    const { fullName, phoneNumber, profilePic, bio, jobRole } = req.body;
+    const { firstName, lastName, phoneNumber, profilePic, bio, jobRole, jobRoleCategory } = req.body;
+
+    const fullName = firstName + " " + lastName;
 
     // update specific user info using userModel and run validators
     const updatedUser = await userModel.findByIdAndUpdate(userId, { fullName, phoneNumber }, { new: true, runValidators: true });
@@ -122,7 +142,7 @@ export const updateUserInfoAndProf = async (req, res) => {
     if (!updatedUser) return sendError(res, 400, "user info not updated!")
 
     // update specific user profile info using userProfileModel
-    const updatedUserProfile = await userProfileModel.findByIdAndUpdate(profileId, { profilePic, bio, jobRole }, { new: true });
+    const updatedUserProfile = await userProfileModel.findByIdAndUpdate(profileId, { profilePic, bio, jobRole, jobRoleCategory }, { new: true });
 
     // if userProfile info not updated, send error
     if (!updatedUserProfile) return sendError(res, 400, "user Profile not updated!");
@@ -132,7 +152,7 @@ export const updateUserInfoAndProf = async (req, res) => {
       status: 'success',
       message: 'user info or profile updated',
       info: updatedUser,
-      profile: updatedUserProfile
+      profile: { updatedUserProfile }
     })
 
   } catch (error) {

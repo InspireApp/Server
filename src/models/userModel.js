@@ -1,4 +1,5 @@
 import mongoose from "mongoose";
+import { userProfileModel } from "./userProfile.js";
 
 const userSchema = new mongoose.Schema({
   fullName: {
@@ -22,17 +23,18 @@ const userSchema = new mongoose.Schema({
       match: [/^\\d{ 8, 11}$/, 'Please add a valid phone number with 10 or 11 digits']
     }
   },
+
+  profile: {
+    type: mongoose.Schema.Types.ObjectId,
+    ref: 'Userprofile',
+  },
+
   password: {
     type: String,
     required: true,
     validators: {
       match: [/^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&])[A-Za-z\d@$!%*?&]{8,}$/, 'Password must contain minimum of eight characters, at least one uppercase letter, one lowercase letter, one number and one special character.']
     }
-  },
-
-  profilePic: {
-    type: String,
-    default: ""
   },
 
   verified: {

@@ -26,7 +26,7 @@ export const addJobValidator = (data) => {
   return schema.validate(data);
 }
 
-export const filterJobValidator = (data) => {
+export const updateJobValidator = (data) => {
   const schema = joi.object({  
     jobTitle:  joi.string().optional(),
 

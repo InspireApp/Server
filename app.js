@@ -39,6 +39,8 @@ app.use(passport.session())
 
 // Mounting router
 app.use('/api/v1/auth', userAuthRouter);
+app.use('/api/v1/job', jobRouter);
+app.use('/api/v1/profile', userProfileRouter);
 // app.use('/api/v1', homePageRouter);
 
 

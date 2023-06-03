@@ -1,35 +1,53 @@
-import {
-  addJobValidator,
-  filterJobValidator,
-} from "../validators/jobValidator.js";
-import { mongoIdValidator } from "../validators/mongoIdValidator.js";
+import { sendError } from "../error/customError.js";
 import { JobModel } from "../models/jobModel.js";
 import {
-  sendError,
-  NotFoundError,
-  BadUserRequestError,
-} from "../error/customError.js";
-import { userModel } from "../models/userModel.js";
+  addJobValidator,
+  updateJobValidator,
+} from "../validators/jobValidator.js";
+import { mongoIdValidator } from "../validators/mongoIdValidator.js";
 
 export const createJob = async (req, res) => {
   try {
-    // Validate user job creation data (joi validation)
-    const { error } = addJobValidator(req.body);
-    if (error) {
-      return res.status(400).json({
-        status: "Failed",
-        message: error.details[0].message,
-      });
-    }
+    // collect data from the logged in user(req.user) and collect data from the req.body
+    const userId = req.user._id;
 
-    // save job data into the database
-    const newJob = await JobModel.create({ ...req.body, owner: req.user._id });
+    const userEmail = req.user.email;
 
-    // returned response
+    // Validate req.body data???
+
+    const {
+      jobTitle,
+      companyName,
+      jobType,
+      jobCategory,
+      jobLocation,
+      applicationDeadline,
+      jobDescription,
+      contactInfor,
+      applicationInstruction,
+    } = req.body;
+
+    // create new job
+    const job = await JobModel.create({
+      userJob: userId,
+      email: userEmail,
+      jobTitle,
+      companyName,
+      jobType,
+      jobCategory,
+      jobLocation,
+      applicationDeadline,
+      jobDescription,
+      contactInfor,
+      applicationInstruction,
+    });
+    if (!job) return sendError(res, 400, "Please add job");
+
+    // server response
     res.status(200).json({
-      status: "Success",
-      message: "Job Added Successfully",
-      userData: newJob,
+      status: "success",
+      message: "Job added successfully",
+      data: job,
     });
   } catch (error) {
     res.status(400).json({
@@ -41,22 +59,18 @@ export const createJob = async (req, res) => {
 
 export const findJob = async (req, res) => {
   try {
-    // destructuring req.query data
-    const { id } = req.query;
+    const { id } = req.query
+    const { error } = mongoIdValidator.validate(req.query)
+    if( error ) return sendError(res, 404, 'Please pass in a valid mongoId');
 
-    // joi validation
-    const { error } = mongoIdValidator.validate(req.query);
-    if (error) throw new BadUserRequestError("Please pass in a valid mongoId");
+    const getJob = await JobModel.findById(id)
+    if(!getJob) return sendError(`The task with this id: ${id}, does not exist`)
 
-    //retrieve job from the database
-    const job = await JobModel.findById(id);
-    if (!job)
-      throw new NotFoundError(`The job with this id: ${id}, does not exist`);
-
-    return res.status(200).json({
-      status: "Success",
+    // server response
+    res.status(200).json({
+      status: "success",
       message: "Job details found successfully",
-      data: { job },
+      data:  getJob ,
     });
   } catch (error) {
     res.status(400).json({
@@ -66,31 +80,49 @@ export const findJob = async (req, res) => {
   }
 };
 
+
+
 export const findAllJobs = async (req, res) => {
   try {
-    const _id = req.params._id;
-    console.log(req.params._id)
-    //joi validation
-    const { error } = mongoIdValidator.validate(req.query);
-    if (error) throw new BadUserRequestError("Please pass in a valid mongoId");
 
-    //retrieving user from the database
-    const user = await userModel.findById(_id);
-    if (!user)
-      throw new NotFoundError(`The user with this id: ${_id}, does not exist`);
+      // filtering by job properties
+      const queryObj = { ...req.query };
+      const excludeFields = ['page', 'sort', 'limit', 'fields'];
+      excludeFields.forEach(el => delete queryObj[el]);
 
-    // user's created jobs from the database
-    const jobs = await JobModel.find({ user: _id }).populate("owner");
+      // after all operations on queryObj, pass to JobModel
+      let query = JobModel.find(queryObj);
+  
+      // populate the query response with job info from the  collection excluding the password
+      query = query.populate({ path: 'userJob', select: '-password' });
+  
+      // pagination
+      if (req.query.page && req.query.limit) {
+        const page = req.query.page * 1 || 1;  //page 1 is default
+        const limit = req.query.limit * 1 || 5;
+        const skip = (page - 1) * limit
+  
+        query = query.skip(skip).limit(limit);
+  
+        const numOfJobs = await JobModel.countDocuments();
+        if (skip >= numOfJobs) return sendError(res, 400, "This page is not available!")
+      }
+  
+      // finally, await query
+      const allJobs = await query;
+  
+      // if error and no profile, send error
+      if (!allJobs) return sendError(res, 404, 'jobs not found!');
 
-    //response
+    // server response
     return res.status(200).json({
       message:
-        tasks.length < 1
+        allJobs.length < 1
           ? "No job details found"
           : "Job details found successfully",
       status: "Success",
       data: {
-        jobs,
+        allJobs,
       },
     });
   } catch (error) {
@@ -101,73 +133,67 @@ export const findAllJobs = async (req, res) => {
   }
 };
 
-export const filterJobs = async (req, res) => {
+
+
+export const updateJob = async (req, res) => {
   try {
-    // const page = parseInt(req.query.page) - 1 || 0;
-    // const limit = parseInt(req.query.limit) || 5;
-    // const search = req.query.search || "";
-    // let sort = req.query.sort || "companyName";
-    // let jobType = req.query.sort || "All";
+    const { id } = req.query
 
-    //  let jobLocation = req.query.sort ||"All"
-    //  let applicationDeadline = req.query.sort ||"all"
-    //  let jobDescription = req.query.sort ||"all"
-    //  let companyName = req.query.sort ||"all"
+    const { error } = mongoIdValidator.validate(req.query)
+    if( error ) return sendError(res, 404, 'Please pass in a valid mongoId');
 
-    const jobs = await JobModel.find().skip(0).limit(5);
+    const getJob = await JobModel.findById(id)
+    if(!getJob) return sendError(`The task with this id: ${id}, does not exist`)
+    
+    // data to be updated from req.body
+    const updatingJobValidator = await updateJobValidator(req.body);
+    const updateJobError = updatingJobValidator.error;
+    if (updateJobError) throw updateJobError;
 
+    const job = await JobModel.findById(id);
+    if (!job) return sendError(res, 400, `Job with this id: ${id}, does not exist`);
 
-    // jobType === "All"
-    //   ? (jobType = [JobModel])
-    //   : (jobType = req.query.jobTitle.split(","));
+    // update specific user job info using jobModel
+    const updatedJob = await JobModel.findByIdAndUpdate(id, req.body, { new: true,});
 
-    // req.query.sort ? (sort = req.query.sort.split(",")) : (sort = [sort]);
+    // if userJob info not updated, send error
+    if (!updatedJob) return sendError(res, 400, "Job not updated!");
 
-    // let sortBy = {};
-    // if (sort[1]) {
-    //   sortBy[sort[0]] = sort[1];
-    // } else {
-    //   sortBy[sort[0]] = "asc";
-    // }
-
-    // const jobs = await JobModel.find({
-    //   jobTittle: { $regex: search, $options: "i" },
-    // })
-    //   .where("jobType")
-    //   .in([...jobType])
-    //   .sort(sortBy)
-    //   .skip(page * limit)
-    //   .limit(limit);
-
-    // const total = await JobModel.countDocuments({
-    //   jobtype: { $in: [...jobType] },
-    //   companyName: { $regex: search, $options: "i" },
-    // });
-
-    // response
-
-    // res.status(200).json({
-    //   status: "success",
-    //   message: "searches found",
-    //   data: {
-    //     total,
-    //     page: page + 1,
-    //     limit,
-    //     jobType: JobModel,
-    //     companyName,
-    //   },
-    // });
-
+    // server response
     res.status(200).json({
       status: "success",
-      message: "searches found",
-      data: {
-        jobs
-      },
+      message: "Job updated successfully",
+      data: { updatedJob },
     });
-
   } catch (error) {
-    res.status(400).json({
+    res.status(500).json({
+      status: "Failed",
+      message: error.message,
+    });
+  }
+};
+
+export const deleteJob = async (req, res) => {
+  try {
+    const { id } = req.query;
+    const { error } = mongoIdValidator.validate(req.query);
+    if (error) return sendError(res, 400, "Please pass in a valid mongoId");
+
+    const job = await JobModel.findById(id);
+    if (!job) return sendError(res, 404, `The task with this id: ${id}, does not exist`);
+
+    // await userProfileModel.deleteOne({ _id: userId });
+    await JobModel.findByIdAndUpdate(id, {
+      isDeleted: true,
+    });
+  
+
+    return res.status(200).json({
+      message: "Job deleted successfully",
+      status: "Success",
+    });
+  } catch (error) {
+    res.status(500).json({
       status: "Failed",
       message: error.message,
     });

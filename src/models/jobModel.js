@@ -1,7 +1,7 @@
 import mongoose from "mongoose";
 
 const jobSchema = new mongoose.Schema({
-  owner: {
+  userJob: {
     type: mongoose.Schema.Types.ObjectId,
     ref: "User",
     required: true,
@@ -10,6 +10,11 @@ const jobSchema = new mongoose.Schema({
   jobTitle: {
     type: String,
     required: true,
+  },
+
+  isDeleted: {
+    type: Boolean,
+    default: false,
   },
 
   companyName: {

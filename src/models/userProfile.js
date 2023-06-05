@@ -54,7 +54,7 @@ const userProfileSchema = new mongoose.Schema({
       },
       ended: {
         type: Number,
-        required: [true, 'please enter start year']
+        required: [true, 'please enter end year']
       },
     },
   ],

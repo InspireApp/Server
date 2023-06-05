@@ -51,3 +51,20 @@ export const updateJobValidator = (data) => {
 
   return schema.validate(data);
 }
+
+ export const findJobsValidator = (data) => {
+  const schema = joi.object({  
+    jobTitle:  joi.string().optional(),
+
+    companyName: joi.string().optional(),
+  
+    jobType: joi.string().optional(),
+  
+    jobCategory: joi.string().optional(),
+  
+    jobLocation: joi.string().optional(),
+  
+  }).strict();
+
+  return schema.validate(data);
+}

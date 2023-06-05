@@ -3,6 +3,7 @@ import { JobModel } from "../models/jobModel.js";
 import {
   addJobValidator,
   updateJobValidator,
+  findJobsValidator,
 } from "../validators/jobValidator.js";
 import { mongoIdValidator } from "../validators/mongoIdValidator.js";
 
@@ -86,6 +87,11 @@ export const findAllJobs = async (req, res) => {
   try {
 
       // filtering by job properties
+
+    const findingJobValidator = await findJobsValidator(req.query);
+    const findJobError = findingJobValidator.error;
+    if (findJobError) throw findJobError;
+
       const queryObj = { ...req.query };
       const excludeFields = ['page', 'sort', 'limit', 'fields'];
       excludeFields.forEach(el => delete queryObj[el]);
@@ -177,16 +183,14 @@ export const deleteJob = async (req, res) => {
   try {
     const { id } = req.query;
     const { error } = mongoIdValidator.validate(req.query);
-    if (error) return sendError(res, 400, "Please pass in a valid mongoId");
+    if (error) return sendError(res, 404, "Please pass in a valid mongoId");
 
     const job = await JobModel.findById(id);
-    if (!job) return sendError(res, 404, `The task with this id: ${id}, does not exist`);
+    if (!job) return sendError(res, 404, `The job with this id: ${id}, does not exist`);
 
-    // await userProfileModel.deleteOne({ _id: userId });
     await JobModel.findByIdAndUpdate(id, {
-      isDeleted: true,
-    });
-  
+      isDeleted: true
+    })
 
     return res.status(200).json({
       message: "Job deleted successfully",

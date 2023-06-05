@@ -12,11 +12,6 @@ const jobSchema = new mongoose.Schema({
     required: true,
   },
 
-  isDeleted: {
-    type: Boolean,
-    default: false,
-  },
-
   companyName: {
     type: String,
     required: true,
@@ -41,6 +36,11 @@ const jobSchema = new mongoose.Schema({
     default: Date.now(),
   },
 
+  isDeleted: {
+    type: Boolean,
+    default: false,
+  },
+
   jobDescription: {
     type: String,
     required: true,
@@ -55,7 +55,19 @@ const jobSchema = new mongoose.Schema({
     type: String,
     required: true,
   },
+  jobLink: {
+    type: String,
+    default: ""
+  },
 
 });
+
+jobSchema.pre(/^find/, function (next){
+  if (this instanceof mongoose.Query) {
+      this.where({ isDeleted: { $ne: true } }); 
+    }  
+    next()
+  })
+  
 
 export const JobModel = mongoose.model("Job", jobSchema);

@@ -23,6 +23,7 @@ export const userDataValidation = (data) => {
         'string.pattern.base': 'Password must contain minimum of eight characters, at least one uppercase letter, one lowercase letter, one number and one special character.'
       })
 
+
   }).strict();
 
   return schema.validate(data);

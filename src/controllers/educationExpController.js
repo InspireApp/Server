@@ -9,6 +9,9 @@ export const updateOneEducationExperience = async (req, res) => {
     const educationId = req.params.educationId;
     if (!isValidObjectId(educationId)) return sendError(res, 400, "education object Id invalid!")
 
+    const isMatch = await userProfileModel.find({ education: { $elemMatch: req.body } })
+    if (isMatch.length) return sendError(res, 400, "experience already saved!");
+
 
     // update education experience by its object id
     const updatedEdu = await userProfileModel.findOneAndUpdate(
@@ -17,7 +20,7 @@ export const updateOneEducationExperience = async (req, res) => {
       { new: true }
     ).populate({
       path: 'userProfile',
-      select: '-password'
+      select: '-password -tokens -__v'
     });
 
     // if no updatedEdu send error
@@ -49,7 +52,7 @@ export const addOneNewEducationExperience = async (req, res) => {
     const newEducation = await userProfileModel.findByIdAndUpdate({ _id: createdUserProfileId }, { $push: { education: req.body } }, { new: true })
       .populate({
         path: 'userProfile',
-        select: '-password'
+        select: '-password -tokens -__v'
       });
 
     if (!newEducation) return sendError(res, 400, "no new Education experience added, check the created profile Id!")
@@ -80,7 +83,7 @@ export const removeOneEducationExperience = async (req, res) => {
     const remEducation = await userProfileModel.findByIdAndUpdate({ _id: removeId }, { $pull: { education: req.body } }, { new: true })
       .populate({
         path: 'userProfile',
-        select: '-password'
+        select: '-password -tokens -__v'
       });
 
     if (!remEducation) return sendError(res, 400, "experience not removed!")

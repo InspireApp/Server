@@ -7,6 +7,16 @@ const userProfileSchema = new mongoose.Schema({
     required: true
   },
 
+  firstName: {
+    type: String,
+    default: ""
+  },
+
+  lastName: {
+    type: String,
+    default: ""
+  },
+
   profilePic: {
     type: String,
     default: ""
@@ -25,6 +35,11 @@ const userProfileSchema = new mongoose.Schema({
   jobRole: {
     type: String,
     required: true,
+  },
+
+  jobRoleCategory: {
+    type: String,
+    required: [true, "Please enter your job role's category!"]
   },
 
   education: [
@@ -56,7 +71,7 @@ const userProfileSchema = new mongoose.Schema({
       },
       ended: {
         type: Number,
-        required: [true, 'please enter end year']
+        required: [true, 'please enter year ended']
       }
     },
 
@@ -68,6 +83,14 @@ const userProfileSchema = new mongoose.Schema({
         type: String,
         default: ""
       },
+      started: {
+        type: Number,
+        required: [true, 'please add year started']
+      },
+      ended: {
+        type: Number,
+        required: [true, 'please enter year ended']
+      }
     }
   ]
 

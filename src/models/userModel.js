@@ -43,6 +43,29 @@ const userSchema = new mongoose.Schema({
     default: false
   },
 
+  interests: [
+    {
+      type: Object,
+      enum: ['Mentoring', 'Mentorship', 'Job opportunities', 'Fashion', 'Business/Finance', 'Tech/IT', 'Entertainment', 'News', 'Academics', 'Travel', 'Gaming', 'Politics', 'Music', 'Arts', 'Culture', 'Design'],
+      required: [true, 'Please pick your interests'],
+      default: 'Entertainment'
+    }
+  ],
+
+  isMentor: {
+    type: Boolean,
+    default: false
+  },
+
+  isMentee: {
+    type: Boolean,
+    default: false
+  },
+
+  followers: [{ type: Object }],
+
+  following: [{ type: Object }],
+
   tokens: [{ type: Object }]
 
 })

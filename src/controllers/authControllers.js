@@ -370,3 +370,10 @@ export const logOut = async (req, res) => {
   }
 
 }
+
+// test route
+export const testRoute = (req, res) => {
+  res.status(200).json({
+    message: "connected to the api successfully"
+  })
+}

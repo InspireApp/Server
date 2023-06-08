@@ -1,4 +1,5 @@
 import * as dotenv from "dotenv";
+import cors from 'cors';
 import express from "express";
 import mongoose from 'mongoose';
 import morgan from "morgan";
@@ -18,6 +19,7 @@ const port = config.port;
 // global middle-wares
 app.use(express.json())
 app.use(morgan('tiny'))
+app.use(cors());
 
 // call passport file
 passportSetup();
@@ -37,6 +39,7 @@ app.use(passport.session())
 
 
 // Mounting router
+app.use('/', userAuthRouter)
 app.use('/api/v1/auth', userAuthRouter);
 app.use('/api/v1/profile', userProfileRouter);
 

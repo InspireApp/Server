@@ -10,6 +10,7 @@ import cookieSession from "cookie-session";
 import passport from "passport";
 import { userProfileRouter } from "./src/routes/profileRoutes.js";
 import { jobRouter } from "./src/routes/jobRoutes.js";
+import { networkRouter } from "./src/routes/networkRoutes.js";
 // import { homePageRouter } from "./src/routes/homePageRoutes.js";
 
 dotenv.config();
@@ -40,6 +41,7 @@ app.use(passport.session())
 // Mounting router
 app.use('/api/v1/auth', userAuthRouter);
 app.use('/api/v1/job', jobRouter);
+app.use('/api/v1/network', networkRouter);
 app.use('/api/v1/profile', userProfileRouter);
 // app.use('/api/v1', homePageRouter);
 

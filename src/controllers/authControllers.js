@@ -52,7 +52,7 @@ export const createAccount = async (req, res) => {
 
     // send OTP mail
     mailTransport().sendMail({
-      from: "elizabethwaleade@gmail.com",
+      from: "abigaelchebet85@gmail.com",
       to: userCreated.email,
       subject: "verify your email account",
       html: generateEmail(OTP, userCreated.fullName)
@@ -173,7 +173,7 @@ export const verifyEmail = async (req, res) => {
 
     // send verification mail
     mailTransport().sendMail({
-      from: "elizabethwaleade@gmail.com",
+      from: "abigaelchebet85@gmail.com",
       to: userFound.email,
       subject: "Welcome Email",
       html: responseEmail(userFound.fullName)
@@ -264,7 +264,7 @@ export const forgotPassword = async (req, res) => {
 
     // send mail
     mailTransport().sendMail({
-      from: "elizabethwaleade@gmail.com",
+      from: "abigaelchebet85@gmail.com",
       to: user.email,
       subject: "Password Reset",
       html: generatePasswordReset(user.fullName, `http://localhost:3000/reset-password?token=${genToken}&id=${user._id}`)
@@ -316,7 +316,7 @@ export const resetPassword = async (req, res) => {
 
     // send mail
     mailTransport().sendMail({
-      from: "elizabethwaleade@gmail.com",
+      from: "abigaelchebet85@gmail.com",
       to: user.email,
       subject: "Password Reset",
       html: passwordResetConfirm(user.fullName)

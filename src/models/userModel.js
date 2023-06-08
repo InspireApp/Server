@@ -1,5 +1,6 @@
 import mongoose from "mongoose";
 import { userProfileModel } from "./userProfile.js";
+const { ObjectId } = mongoose.Schema.Types
 
 const userSchema = new mongoose.Schema({
   fullName: {
@@ -62,9 +63,9 @@ const userSchema = new mongoose.Schema({
     default: false
   },
 
-  followers: [{ type: Object }],
+  followers:[{type:ObjectId,ref:"User"}],
 
-  following: [{ type: Object }],
+  following:[{type:ObjectId,ref:"User"}],
 
   tokens: [{ type: Object }]
 

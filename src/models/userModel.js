@@ -63,6 +63,11 @@ const userSchema = new mongoose.Schema({
     default: false
   },
 
+  isBlocked: {
+    type: Boolean,
+    default: false,
+  },
+
   followers:[{type:ObjectId,ref:"User"}],
 
   following:[{type:ObjectId,ref:"User"}],
@@ -70,5 +75,12 @@ const userSchema = new mongoose.Schema({
   tokens: [{ type: Object }]
 
 })
+
+userSchema.pre(/^find/, function (next){
+  if (this instanceof mongoose.Query) {
+      this.where({ isBlocked: { $ne: true } }); 
+    }  
+    next()
+  })
 
 export const userModel = mongoose.model('User', userSchema);

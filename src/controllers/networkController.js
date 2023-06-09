@@ -46,9 +46,6 @@ export const follow = async (req, res) => {
 };
 
 
-
-
-
  export const unfollow = async (req, res) => {
   try {
     const userId = req.user.id;
@@ -91,18 +88,23 @@ export const follow = async (req, res) => {
 };
 
 
-// //blocking a user
-// export const blockuser = async (req, res, next) => {
-//   try {
-//     const userId = req.params.userId;
-//     userModel.findOne({ userId }, function (err, data) {
-//       if (data.blocked === 0) next();
-//       else res.status(403).send("You are blocked");
-//     });
-//   } catch (error) {
-//     res.status(400).json({
-//       status: "Failed",
-//       message: error.message,
-//     });
-//   }
-// };
+//block user
+export const blockUser = async (req, res, next) => {
+  try {
+    const userId = req.params.userId;
+    userModel.updateOne(
+      { _id: userId },
+      { $set: { blocked: true } },
+    )
+     // server response
+     res.status(200).json({
+      status: "success",
+      message: "user blocked successfully",
+    });
+  } catch (error) {
+    res.status(400).json({
+      status: "Failed",
+      message: error.message,
+    });
+  }
+};

@@ -12,5 +12,8 @@ export const production = {
   bcrypt_forgot_password_salt_round: process.env.PROD_FORGOT_PASSWORD_SALT_ROUND,
   google_strategy_client_id: process.env.PROD_GOOGLE_STRATEGY_CLIENT_ID,
   google_strategy_client_secret: process.env.PROD_GOOGLE_STRATEGY_CLIENT_SECRET,
-  cookie_session_key: process.env.PROD_COOKIE_SESSION_KEY
+  cookie_session_key: process.env.PROD_COOKIE_SESSION_KEY,
+  cloudinary_name: process.env.PROD_CLOUDINARY_NAME,
+  cloudinary_key: process.env.PROD_CLOUDINARY_KEY,
+  cloudinary_secret: process.env.PROD_CLOUDINARY_SECRET
 }

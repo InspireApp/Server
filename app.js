@@ -11,6 +11,7 @@ import cookieSession from "cookie-session";
 import passport from "passport";
 import { userProfileRouter } from "./src/routes/profileRoutes.js";
 import { testRoute } from "./src/controllers/authControllers.js";
+import { postRouter } from "./src/routes/postRoutes.js";
 // import { homePageRouter } from "./src/routes/homePageRoutes.js";
 
 dotenv.config();
@@ -43,6 +44,7 @@ app.use(passport.session())
 app.get('/', testRoute)
 app.use('/api/v1/auth', userAuthRouter);
 app.use('/api/v1/profile', userProfileRouter);
+app.use('/api/v1/post', postRouter);
 
 
 // Database connection

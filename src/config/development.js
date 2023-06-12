@@ -12,5 +12,8 @@ export const development = {
   bcrypt_forgot_password_salt_round: process.env.DEV_FORGOT_PASSWORD_SALT_ROUND,
   google_strategy_client_id: process.env.DEV_GOOGLE_STRATEGY_CLIENT_ID,
   google_strategy_client_secret: process.env.DEV_GOOGLE_STRATEGY_CLIENT_SECRET,
-  cookie_session_key: process.env.DEV_COOKIE_SESSION_KEY
+  cookie_session_key: process.env.DEV_COOKIE_SESSION_KEY,
+  cloudinary_name: process.env.DEV_CLOUDINARY_NAME,
+  cloudinary_key: process.env.DEV_CLOUDINARY_KEY,
+  cloudinary_secret: process.env.DEV_CLOUDINARY_SECRET
 }

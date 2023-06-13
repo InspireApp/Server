@@ -212,7 +212,7 @@ export const updateInterest = async (req, res) => {
 export const followUser = async (req, res) => {
   try {
 
-    // the user's id is gotten from the req.user._id, that of the person to be followed from req.body.followId.add id of the user to the followed user's followers
+    // the user's id is gotten from the req.user._id, that of the person to be followed from req.body.followId add id of the user to the followed user's followers
     const result = await userModel.findByIdAndUpdate(req.body.followId, { $push: { followers: req.user._id } }, { new: true }).select("-password");
 
     // if no result, send error

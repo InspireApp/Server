@@ -1,4 +1,5 @@
 import * as dotenv from "dotenv";
+import cors from 'cors';
 import express from "express";
 import mongoose from 'mongoose';
 import morgan from "morgan";
@@ -9,6 +10,8 @@ import { passportSetup } from "./src/socialLogin/passport.js";
 import cookieSession from "cookie-session";
 import passport from "passport";
 import { userProfileRouter } from "./src/routes/profileRoutes.js";
+import { testRoute } from "./src/controllers/authControllers.js";
+import { postRouter } from "./src/routes/postRoutes.js";
 import { jobRouter } from "./src/routes/jobRoutes.js";
 import { networkRouter } from "./src/routes/networkRoutes.js";
 // import { homePageRouter } from "./src/routes/homePageRoutes.js";
@@ -20,6 +23,7 @@ const port = config.port || 3001;
 // global middle-wares
 app.use(express.json())
 app.use(morgan('tiny'))
+app.use(cors());
 
 // call passport file
 passportSetup();
@@ -39,11 +43,11 @@ app.use(passport.session())
 
 
 // Mounting router
+app.get('/', testRoute)
 app.use('/api/v1/auth', userAuthRouter);
 app.use('/api/v1/job', jobRouter);
 app.use('/api/v1/network', networkRouter);
 app.use('/api/v1/profile', userProfileRouter);
-// app.use('/api/v1', homePageRouter);
 
 
 // Database connection

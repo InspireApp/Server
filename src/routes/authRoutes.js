@@ -1,5 +1,5 @@
 import express from 'express';
-import { createAccount, emailLogin, forgotPassword, laterAccountVerify, logOut, resetPassword, verifyEmail } from '../controllers/authControllers.js';
+import { createAccount, emailLogin, forgotPassword, laterAccountVerify, logOut, resetPassword, testRoute, verifyEmail } from '../controllers/authControllers.js';
 import { resetPasswordValidation, socialAuthCheck, userAuthJwt } from '../middlewares/auth.js';
 import passport from 'passport';
 

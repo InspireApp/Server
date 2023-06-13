@@ -181,6 +181,7 @@ export const verifyEmail = async (req, res) => {
 
     // response
     res.status(200).json({
+      status: "Success",
       message: "User verified successfully",
       data: updateUser
     })
